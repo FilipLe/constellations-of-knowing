@@ -217,26 +217,27 @@ const BackgroundSketch: React.FC<Props> = ({ visualMode }) => {
     p.translate(p.width * 0.2, 0); // Shift to the right
     
     // Draw Earth as a large circle
-    p.noFill(); p.stroke(100, 150, 200, 100);
+    p.noFill(); 
+    p.stroke(100, 150, 200, 100);
     p.strokeWeight(2);
-    const earthRadius = 120;
-    p.circle(0, 0, earthRadius * 2);
+    const earthRadius = 100;
+    p.circle(20, 100, earthRadius * 2);
     
     // Sun at the top
     p.fill(255, 220, 100);
     p.noStroke();
-    p.circle(0, -earthRadius - 80, 40);
+    p.circle(20, -earthRadius - 160, 80);
     
-    // Two cities: Syene (left, no shadow - sun directly overhead) and Alexandria (right, has shadow)
-    const syeneX = -80;
-    const alexandriaX = 80;
+    // Two cities: Syene (no shadow - sun directly overhead) and Alexandria (has shadow)
+    const syeneX = 20;
+    const alexandriaX = -30;
     const stickHeight = 35;
     
     // Sticks pointing up from cities
     p.stroke(200, 150, 100);
     p.strokeWeight(4);
     p.line(syeneX, 0, syeneX, -stickHeight); // Syene stick
-    p.line(alexandriaX, 0, alexandriaX, -stickHeight); // Alexandria stick
+    p.line(alexandriaX+10, 10, alexandriaX-10, -stickHeight+10); // Alexandria stick
     
     // Sun rays (parallel rays from sun)
     p.stroke(255, 200, 100, 150);
@@ -247,15 +248,16 @@ const BackgroundSketch: React.FC<Props> = ({ visualMode }) => {
     const alexandriaStickTopY = -stickHeight;
     const angle = p.PI / 12; // ~7.2 degrees (approximately what Eratosthenes measured)
     const rayEndX = alexandriaX + p.tan(angle) * (earthRadius + 60 - stickHeight);
-    p.line(alexandriaX, alexandriaStickTopY, rayEndX, -earthRadius - 60);
+    p.line(alexandriaX-10, alexandriaStickTopY+10, rayEndX, -earthRadius - 60);
     
     // Shadow in Alexandria
-    const shadowLength = stickHeight * p.tan(angle);
-    p.fill(50, 50, 50, 180);
+    const shadowLength = stickHeight * p.tan(-angle);
+    p.fill(200, 200, 200, 180);
     p.noStroke();
+    p.translate(-10, 10)
     p.triangle(
-      alexandriaX, 0,
-      alexandriaX + shadowLength, 0,
+      alexandriaX+20, 0,
+      alexandriaX + shadowLength, 15,
       alexandriaX, -stickHeight
     );
     
@@ -270,8 +272,8 @@ const BackgroundSketch: React.FC<Props> = ({ visualMode }) => {
     p.noStroke();
     p.textAlign(p.CENTER, p.CENTER);
     p.textSize(10);
-    p.text('Syene', syeneX, 20);
-    p.text('Alexandria', alexandriaX, 20);
+    p.text('Syene', syeneX+10, 0);
+    p.text('Alexandria', alexandriaX+20, 15);
     
     p.pop();
   };
