@@ -321,87 +321,176 @@ const BackgroundSketch: React.FC<Props> = ({ visualMode }) => {
   };
 
   const drawGalileo = (p: p5, time: number) => {
-    // Telescope, Venus phases, Jupiter with moons
+    // Venus phases in orbital diagram around Sun, Jupiter with moons
     p.push();
     
-    // Draw telescope (more detailed, on the left)
+    // Draw orbital diagram of Venus phases
     p.push();
-    p.translate(-180, 30);
-    p.rotate(p.PI / 12); // Slight angle
-    // Telescope tube
-    p.fill(80, 80, 80);
+    p.translate(100, -220); // Move up more
+    
+    // Sun at center
+    p.fill(255, 220, 50);
     p.noStroke();
-    p.rect(-5, -60, 10, 120);
-    // Eyepiece (smaller end)
-    p.fill(60, 60, 60);
-    p.circle(0, -60, 18);
-    // Objective lens (larger end)
-    p.fill(120, 120, 120);
-    p.circle(0, 60, 28);
-    // Lens reflection
-    p.fill(200, 200, 200, 100);
-    p.circle(0, 60, 20);
-    // Tripod legs
-    p.stroke(100, 100, 100);
-    p.strokeWeight(3);
-    p.line(-5, 60, -30, 100);
-    p.line(5, 60, 30, 100);
-    p.line(0, 60, 0, 100);
-    p.pop();
+    p.circle(0, 0, 40);
     
-    // Venus phases (top right) - clearer phases
-    p.push();
-    p.translate(120, -80);
-    const venusCycle = (time * 0.2) % p.TWO_PI;
-    const venusPhase = venusCycle / p.TWO_PI; // 0 to 1
+    // Earth at bottom
+    p.fill(100, 150, 255);
+    p.noStroke();
+    p.circle(0, 150, 25);
+    p.fill(200, 220, 255);
+    p.circle(0, 150, 20);
     
-    // Draw Venus circle outline
-    p.stroke(255, 200, 100, 150);
-    p.strokeWeight(2);
+    // Elliptical orbit path
     p.noFill();
-    p.circle(0, 0, 45);
+    p.stroke(150, 150, 150, 100);
+    p.strokeWeight(1);
+    p.ellipse(0, 0, 300, 200);
     
-    // Draw phase based on cycle
-    p.fill(255, 200, 100);
-    p.noStroke();
+    // Venus phases arranged around orbit
+    // Size varies: smallest when full (farthest), largest when new (closest)
+    const baseSize = 25; // Bigger for visibility
+    const phases = [
+      { angle: -p.PI / 2, name: 'Full', size: baseSize * 0.6, illuminated: 1.0 }, // Top
+      { angle: -p.PI / 2 + 0.6, name: 'Gibbous', size: baseSize * 0.75, illuminated: 0.75 }, // Top-right
+      { angle: 0, name: 'Third Quarter', size: baseSize * 0.9, illuminated: 0.5 }, // Right
+      { angle: p.PI / 4, name: 'Crescent', size: baseSize * 1.1, illuminated: 0.25 }, // Bottom-right
+      { angle: p.PI / 2, name: 'New', size: baseSize * 1.3, illuminated: 0 }, // Bottom
+      { angle: p.PI / 2 + p.PI / 4, name: 'Crescent', size: baseSize * 1.1, illuminated: 0.25 }, // Bottom-left
+      { angle: p.PI, name: 'First Quarter', size: baseSize * 0.9, illuminated: 0.5 }, // Left
+      { angle: -p.PI / 2 - 0.6, name: 'Gibbous', size: baseSize * 0.75, illuminated: 0.75 } // Top-left
+    ];
     
-    if (venusPhase < 0.25) {
-      // New Venus (dark, but show outline)
-      p.fill(255, 200, 100, 50);
-      p.circle(0, 0, 45);
-    } else if (venusPhase < 0.5) {
-      // Waxing crescent
-      p.circle(0, 0, 45);
-      p.fill(10, 10, 18);
-      p.ellipse(0, 0, 45, 45 * (1 - (venusPhase - 0.25) * 4));
-    } else if (venusPhase < 0.75) {
-      // Waning gibbous
-      p.circle(0, 0, 45);
-      p.fill(10, 10, 18);
-      p.ellipse(0, 0, 45 * (1 - (venusPhase - 0.5) * 4), 45);
-    } else {
-      // Waning crescent
-      p.circle(0, 0, 45);
-      p.fill(10, 10, 18);
-      p.ellipse(0, 0, 45, 45 * (venusPhase - 0.75) * 4);
-    }
+    phases.forEach(phase => {
+      p.push();
+      // Position on orbit
+      const orbitX = p.cos(phase.angle) * 150;
+      const orbitY = p.sin(phase.angle) * 100;
+      p.translate(orbitX, orbitY);
+      
+      // Calculate angle to Sun (illumination always faces Sun)
+      const angleToSun = p.atan2(-orbitY, -orbitX);
+      
+      // Draw Venus phase
+      const venusSize = phase.size;
+      const radius = venusSize / 2;
+      
+      if (phase.illuminated === 0) {
+        // New - completely dark
+        p.fill(30, 30, 40);
+        p.noStroke();
+        p.circle(0, 0, venusSize);
+        p.noFill();
+        p.stroke(200, 220, 255, 100);
+        p.strokeWeight(1);
+        p.circle(0, 0, venusSize);
+      } else if (phase.illuminated === 1.0) {
+        // Full - completely illuminated
+        p.fill(255, 200, 100);
+        p.noStroke();
+        p.circle(0, 0, venusSize);
+      } else if (phase.illuminated === 0.5) {
+        // Quarter - half illuminated
+        p.fill(255, 200, 100);
+        p.noStroke();
+        // Illuminated side faces Sun
+        const startAngle = angleToSun - p.PI / 2;
+        const endAngle = angleToSun + p.PI / 2;
+        p.arc(0, 0, venusSize, venusSize, startAngle, endAngle);
+        p.noFill();
+        p.stroke(200, 220, 255, 150);
+        p.strokeWeight(1);
+        p.circle(0, 0, venusSize);
+      } else if (phase.illuminated < 0.5) {
+        // Crescent - thin bright part facing Sun
+        const illumination = phase.illuminated;
+        const offset = radius * (1 - illumination * 2);  // how much to shift
+        const darkAngle = angleToSun + p.PI;  // dark side is AWAY from Sun
+        const darkOffsetX = p.cos(darkAngle) * offset * 2.2;
+        const darkOffsetY = p.sin(darkAngle) * offset * 2.2;
+        const darkDiameter = venusSize * 1.8;  // large dark circle to carve out crescent
+      
+        const ctx = p.drawingContext as CanvasRenderingContext2D;
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(0, 0, radius, 0, p.TWO_PI);
+        ctx.clip();
+      
+        // Draw full bright disk
+        p.fill(255, 200, 100);
+        p.noStroke();
+        p.circle(0, 0, venusSize);
+      
+        // Carve out dark side with large shifted circle
+        p.fill(30, 30, 40);
+        p.circle(darkOffsetX, darkOffsetY, darkDiameter);
+      
+        ctx.restore();
+      
+        // Outline
+        p.noFill();
+        p.stroke(200, 220, 255, 150);
+        p.strokeWeight(1);
+        p.circle(0, 0, venusSize);
+      } else {
+        // Gibbous - mostly illuminated, small dark portion
+        const darkPortion = 1 - phase.illuminated;
+        const offset = radius * darkPortion * 1.8; // Increased for better visibility
+        const darkOffsetX = p.cos(angleToSun + p.PI) * offset;
+        const darkOffsetY = p.sin(angleToSun + p.PI) * offset;
+        const darkRadius = radius - offset * 0.5;
+        
+        // Set up clipping to Venus circle boundary
+        const ctx = p.drawingContext as CanvasRenderingContext2D;
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(0, 0, radius, 0, p.TWO_PI);
+        ctx.clip();
+        
+        // Draw full illuminated circle
+        p.fill(255, 200, 100);
+        p.noStroke();
+        p.circle(0, 0, venusSize);
+        
+        // Draw dark portion (clipped to Venus boundary)
+        p.fill(30, 30, 40);
+        p.circle(darkOffsetX, darkOffsetY, darkRadius * 2);
+        
+        ctx.restore();
+        
+        // Outline
+        p.noFill();
+        p.stroke(200, 220, 255, 150);
+        p.strokeWeight(1);
+        p.circle(0, 0, venusSize);
+      }
+      
+      // Add label
+      p.fill(255, 255, 255, 200);
+      p.noStroke();
+      p.textAlign(p.CENTER, p.TOP);
+      p.textSize(9);
+      p.text(phase.name, 0, venusSize / 2 + 5);
+      
+      p.pop();
+    });
+    
     p.pop();
     
-    // Jupiter with moons (center-right)
+    // Jupiter with moons (moved lower)
     p.push();
-    p.translate(100, 0);
+    p.translate(100, 150); // Move much lower
     p.fill(200, 150, 100);
     p.noStroke();
-    p.circle(0, 0, 35); // Jupiter
+    p.circle(0, 0, 50); // Bigger Jupiter
     
     // Four Galilean moons orbiting
-    const moonDist = 60;
+    const moonDist = 80; // Bigger orbit
     for (let i = 0; i < 4; i++) {
       const angle = time * (0.5 + i * 0.2) + i * p.PI / 2;
       const moonX = p.cos(angle) * moonDist;
       const moonY = p.sin(angle) * moonDist;
       p.fill(255, 200);
-      p.circle(moonX, moonY, 6);
+      p.circle(moonX, moonY, 8); // Bigger moons
       // Orbit path
       p.noFill();
       p.stroke(255, 20);
