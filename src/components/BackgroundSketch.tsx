@@ -226,46 +226,78 @@ const BackgroundSketch: React.FC<Props> = ({ visualMode }) => {
     // Sun at the top
     p.fill(255, 220, 100);
     p.noStroke();
-    p.circle(20, -earthRadius - 160, 80);
+    p.circle(-10, -earthRadius - 180, 80);
     
     // Two cities: Syene (no shadow - sun directly overhead) and Alexandria (has shadow)
     const syeneX = 20;
     const alexandriaX = -30;
     const stickHeight = 35;
     
+    // Earth center
+    const earthCenterX = 20;
+    const earthCenterY = 100;
+    
     // Sticks pointing up from cities
     p.stroke(200, 150, 100);
     p.strokeWeight(4);
-    p.line(syeneX, 0, syeneX, -stickHeight); // Syene stick
-    p.line(alexandriaX+10, 10, alexandriaX-10, -stickHeight+10); // Alexandria stick
+    const syeneStickTopX = syeneX;
+    const syeneStickTopY = -stickHeight;
+    p.line(syeneX, 0, syeneStickTopX, syeneStickTopY); // Syene stick
+    
+    const alexandriaStickBaseX = alexandriaX + 10;
+    const alexandriaStickBaseY = 10;
+    const alexandriaStickTopX = alexandriaX - 10;
+    const alexandriaStickTopY = -stickHeight + 10;
+    p.line(alexandriaStickBaseX, alexandriaStickBaseY, alexandriaStickTopX, alexandriaStickTopY); // Alexandria stick
+    
+    p.fill(255, 255, 255, 50);  // Very light, slightly transparent — matches your reference perfectly
+    p.noStroke();
+    p.triangle(
+      alexandriaStickTopX+30, alexandriaStickTopY+60,   
+      earthCenterX,       earthCenterY,          
+      syeneStickTopX,     syeneStickTopY+60        
+    );
+
+    // Extended lines from stick tops to Earth's center
+    p.stroke(200, 150, 100, 150);
+    p.strokeWeight(2);
+    p.line(syeneStickTopX, syeneStickTopY, earthCenterX, earthCenterY); // Syene to center
+    p.line(alexandriaStickTopX, alexandriaStickTopY, earthCenterX, earthCenterY); // Alexandria to center
     
     // Sun rays (parallel rays from sun)
     p.stroke(255, 200, 100, 150);
     p.strokeWeight(2);
+    const sunX = 20;
+    const sunY = -earthRadius - 160;
     // Ray to Syene (vertical, no angle - sun directly overhead)
-    p.line(syeneX, -stickHeight, syeneX, -earthRadius - 60);
-    // Ray to Alexandria (at an angle)
-    const alexandriaStickTopY = -stickHeight;
+    p.line(syeneStickTopX, syeneStickTopY, sunX, sunY);
+    // Ray to Alexandria (at an angle, parallel to Syene ray)
     const angle = p.PI / 12; // ~7.2 degrees (approximately what Eratosthenes measured)
-    const rayEndX = alexandriaX + p.tan(angle) * (earthRadius + 60 - stickHeight);
-    p.line(alexandriaX-10, alexandriaStickTopY+10, rayEndX, -earthRadius - 60);
+    const rayOffsetX = alexandriaStickTopX - syeneStickTopX;
+    const rayOffsetY = alexandriaStickTopY - syeneStickTopY;
+    p.line(alexandriaStickTopX, alexandriaStickTopY, sunX + rayOffsetX, sunY + rayOffsetY);
     
     // Shadow in Alexandria
-    const shadowLength = stickHeight * p.tan(-angle);
+    const shadowLength = stickHeight * p.tan(angle);
     p.fill(200, 200, 200, 180);
     p.noStroke();
-    p.translate(-10, 10)
     p.triangle(
-      alexandriaX+20, 0,
-      alexandriaX + shadowLength, 15,
-      alexandriaX, -stickHeight
+      alexandriaStickBaseX-20, alexandriaStickBaseY+10,
+      alexandriaStickBaseX + shadowLength-10, alexandriaStickBaseY,
+      alexandriaStickTopX, alexandriaStickTopY
     );
+    
+    // Shadow at Syene (similar style, but no shadow since sun is overhead - draw minimal for consistency)
+    // Actually, since sun is overhead at Syene, there's no shadow, but we can draw a line to show the relationship
+    p.stroke(200, 200, 200, 100);
+    p.strokeWeight(1);
+    p.line(syeneX, 0, syeneX, 0); // No shadow, just a point
     
     // Angle arc showing the difference (at Alexandria)
     p.noFill();
     p.stroke(255, 200, 100, 200);
     p.strokeWeight(2);
-    p.arc(alexandriaX, -stickHeight, 30, 30, -p.PI / 2, -p.PI / 2 + angle);
+    p.arc(alexandriaStickTopX, alexandriaStickTopY, 30, 30, -p.PI / 2, -p.PI / 2 + angle);
     
     // Label the cities
     p.fill(255, 200);
