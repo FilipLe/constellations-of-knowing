@@ -7,7 +7,7 @@ export interface Era {
   title: string;
   year: string;
   poem: string[]; 
-  visualMode: 'static-stars' | 'single-sphere' | 'concentric' | 'epicycles' | 'heliocentric' | 'hybrid' | 'ellipses';
+  visualMode: 'static-stars' | 'single-sphere' | 'concentric' | 'aristotle-physics' | 'eratosthenes-measurement' | 'hipparchus-catalog' | 'epicycles' | 'heliocentric' | 'hybrid' | 'galileo-telescope' | 'ellipses' | 'newton-laws' | 'epilogue-constellation';
 }
 
 export const eras: Era[] = [
@@ -37,15 +37,51 @@ export const eras: Era[] = [
   },
   {
     id: 'plato',
-    title: 'Plato & Eudoxus',
+    title: 'Plato & Eudoxus — Concentric Spheres',
     year: 'c. 370 BC',
     poem: [
       "Concentric orbs, each wheel in quiet spin,",
       "nested mathematics where motions begin.",
-      "These circling paths retraced the planets’ flight,",
+      "These circling paths retraced the planets' flight,",
       "their turning arcs mapped the sky with might."
     ],
     visualMode: 'concentric'
+  },
+  {
+    id: 'aristotle',
+    title: 'Aristotle — Physics of the Spheres',
+    year: 'c. 350 BC',
+    poem: [
+      "He built those spheres into a weighty frame —",
+      "a physics that could hold the cosmos' name.",
+      "The heavens moved by purpose, not by chance;",
+      "the world below bowed to the ordered dance."
+    ],
+    visualMode: 'aristotle-physics'
+  },
+  {
+    id: 'eratosthenes',
+    title: 'Eratosthenes — Measurer of Earth',
+    year: 'c. 240 BC',
+    poem: [
+      "He set a shadow and measured dawn and noon,",
+      "worked geometry that spoke in sand and rune.",
+      "From two small sticks and sunlight's angled trace,",
+      "he scaled Earth's radius, measured Earth's embrace."
+    ],
+    visualMode: 'eratosthenes-measurement'
+  },
+  {
+    id: 'hipparchus',
+    title: 'Hipparchus — The Star-Mapper',
+    year: 'c. 150 BC',
+    poem: [
+      "He keyed the heavens with points of plaintive light,",
+      "a catalog of brightness, place, and height",
+      "A wobble whispered in the constellations' dress —",
+      "a subtle tilt, a slow precession's press."
+    ],
+    visualMode: 'hipparchus-catalog'
   },
   {
     id: 'ptolemy',
@@ -84,6 +120,18 @@ export const eras: Era[] = [
     visualMode: 'hybrid'
   },
   {
+    id: 'galileo',
+    title: "Galileo — The Telescope's Proof",
+    year: '1610',
+    poem: [
+      "He trained a lens and let the small be shown:",
+      "moons that dance the Jupiter, each world its own",
+      "Venus' phases spun the heliocentric thread —",
+      "his glass made real what Copernicus had read."
+    ],
+    visualMode: 'galileo-telescope'
+  },
+  {
     id: 'kepler',
     title: 'Kepler — Ellipses & Laws',
     year: '1609',
@@ -94,5 +142,29 @@ export const eras: Era[] = [
       "the clockwork tuned to measure out the time."
     ],
     visualMode: 'ellipses'
+  },
+  {
+    id: 'newton',
+    title: 'Newton — The Shoulders',
+    year: '1687',
+    poem: [
+      "He wrote the laws that made the dance obey,",
+      "unmasked the force that bends the planet's way.",
+      "Inertia, force, reaction — set in three —",
+      "these laws bound heaven's motions into key."
+    ],
+    visualMode: 'newton-laws'
+  },
+  {
+    id: 'epilogue',
+    title: 'Epilogue — The Finished Constellation',
+    year: 'Present',
+    poem: [
+      "Now click the lights — the network hums and threads;",
+      "each stanza lights another path that spreads.",
+      "We stand on shoulders, map the night afar",
+      "and learn to name the sky through turning stars."
+    ],
+    visualMode: 'epilogue-constellation'
   }
 ];
