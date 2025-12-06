@@ -11,12 +11,12 @@ const ContentWrapper = () => {
   return (
     <div className="relative w-full h-screen bg-black text-white overflow-hidden font-sans">
       
-      {/* 1. VISUAL LAYER (Full Screen) */}
+      {/* 1. Background */}
       <div className="absolute inset-0 z-0">
         <BackgroundSketch activeEra={activeEra.id as EraId} visualMode={activeEra.visualMode} />
       </div>
 
-      {/* 2. POEM SIDEBAR (Left Side) - Now clear and out of the way */}
+      {/* 2. Poem Sidebar */}
       <aside className="absolute top-0 left-0 h-full w-full md:w-1/3 z-10 flex flex-col justify-center p-8 bg-gradient-to-r from-black/90 via-black/50 to-transparent pointer-events-none">
         <AnimatePresence mode='wait'>
           <motion.div 
@@ -27,20 +27,24 @@ const ContentWrapper = () => {
             transition={{ duration: 0.8 }}
             className="pointer-events-auto"
           >
+            {/* Era */}
             <h2 className="text-blue-400 text-xs font-bold tracking-[0.2em] mb-2 uppercase">
               {activeEra.year}
             </h2>
+
+            {/* Title */}
             <h1 className="text-4xl md:text-5xl font-serif mb-6 text-white drop-shadow-lg">
-              {activeEra.title.split('—')[0]} {/* Clean Title */}
+              {activeEra.title.split('—')[0]}
             </h1>
             
+            {/* Poem */}
             <div className="space-y-4 text-lg md:text-xl font-serif text-gray-200 leading-relaxed drop-shadow-md w-screen max-w-none">
               {activeEra.poem.map((line, i) => (
                 <p key={i}>{line}</p>
               ))}
             </div>
             
-            {/* Visual description/hint for the user */}
+            {/* Visual description for the user */}
             <div className="mt-8 text-xs text-gray-500 border-l border-gray-600 pl-3">
               Model: {activeEra.visualMode.replace('-', ' ')}
             </div>
@@ -48,7 +52,7 @@ const ContentWrapper = () => {
         </AnimatePresence>
       </aside>
 
-      {/* 3. NAVIGATION (Bottom) */}
+      {/* Navigation */}
       <nav className="absolute bottom-0 left-0 right-0 z-20 p-6 flex justify-center md:justify-end md:pr-12 bg-gradient-to-t from-black to-transparent">
         <div className="flex gap-6 overflow-x-auto pb-2 scrollbar-hide">
           {eras.map(era => (

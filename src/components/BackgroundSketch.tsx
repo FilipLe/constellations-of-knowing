@@ -12,23 +12,21 @@ const BackgroundSketch: React.FC<Props> = ({ visualMode }) => {
   const myP5 = useRef<p5 | null>(null);
 
   useEffect(() => {
-    // This function creates the P5 instance
+    // create the P5 instance
     const sketch = (p: p5) => {
       
       p.setup = () => {
-        // Create canvas and attach to the div
+        // create dark canvas and attach to the div
         p.createCanvas(window.innerWidth, window.innerHeight);
-        p.background(10, 10, 18); // Initial dark background
+        p.background(10, 10, 18);
       };
 
       p.draw = () => {
-        // 1. Background (redraw every frame)
+        // redraw background every frame
         p.background(10, 10, 18);
 
-        // 2. Global Time
         const t = p.frameCount * 0.01;
 
-        // 3. Move Center to the Right
         p.push();
         p.translate(p.width * 0.6, p.height * 0.5);
 
@@ -36,10 +34,7 @@ const BackgroundSketch: React.FC<Props> = ({ visualMode }) => {
         p.stroke(255);
         p.strokeWeight(1);
 
-        // Access the LATEST visualMode from props (we need to capture it in closure or use a ref)
-        // Note: In instance mode, we can access the 'visualMode' prop directly if we recreate the sketch
-        // or we can attach it to the p5 instance.
-        
+        // access the 'visualMode' prop directly and attach it to the p5 instance.
         switch (visualMode) {
           case 'static-stars':
             drawStars(p);
@@ -90,25 +85,25 @@ const BackgroundSketch: React.FC<Props> = ({ visualMode }) => {
     };
 
     // --- INITIALIZE P5 ---
-    // If a previous instance exists, remove it first (cleanup)
+    // if previous p5 instance exists, remove it ~ cleanup
     if (myP5.current) {
       myP5.current.remove();
     }
     
-    // Create new instance attached to the ref
+    // create new p5 instance attached to the ref
     if (sketchRef.current) {
        myP5.current = new p5(sketch, sketchRef.current);
     }
 
-    // Cleanup when component unmounts or updates
+    // cleanup
     return () => {
       if (myP5.current) {
         myP5.current.remove();
       }
     };
-  }, [visualMode]); // <--- This dependency array ensures sketch restarts when mode changes
+  }, [visualMode]); 
 
-  // --- HELPER FUNCTIONS (Pure Logic) ---
+  // --- HELPER FUNCTIONS ---
   const drawStars = (p: p5) => {
     p.randomSeed(99); 
     p.stroke(255, 150);
@@ -183,19 +178,18 @@ const BackgroundSketch: React.FC<Props> = ({ visualMode }) => {
   };
 
   const drawAristotle = (p: p5, time: number) => {
-    // More structured, weighty spheres with purpose - all moving eastward at different speeds
+    // more structured, weighty spheres with purpose, moving eastward
     p.fill(50, 100, 200); p.noStroke(); p.circle(0, 0, 40); // Earth at center
     p.noFill(); p.stroke(255, 60);
     p.strokeWeight(2);
-    // Multiple ordered spheres, all moving in same direction (eastward) but at different speeds
+    // multiple ordered spheres, all moving in same direction eastward
     for (let i = 1; i <= 7; i++) {
       p.push();
-      // All rotate in same direction, but at different speeds (faster for outer spheres)
       const rotation = time * 0.08 * i;
       p.rotate(rotation);
       const radius = 60 + i * 35;
       p.circle(0, 0, radius * 2);
-      // Add small markers to show purpose/direction
+      // small markers to show purpose/direction
       p.fill(255, 100); p.noStroke();
       for (let j = 0; j < 8; j++) {
         const angle = (j / 8) * p.TWO_PI;
@@ -209,11 +203,10 @@ const BackgroundSketch: React.FC<Props> = ({ visualMode }) => {
   };
 
   const drawEratosthenes = (p: p5) => {
-    // Sun above Earth, two cities (Syene and Alexandria) with sticks, showing angle difference
     p.push();
-    p.translate(p.width * 0.2, 0); // Shift to the right
+    p.translate(p.width * 0.2, 0); 
     
-    // Draw Earth as a large circle
+    // Earth
     p.noFill(); 
     p.stroke(100, 150, 200, 100);
     p.strokeWeight(2);
@@ -225,7 +218,7 @@ const BackgroundSketch: React.FC<Props> = ({ visualMode }) => {
     p.noStroke();
     p.circle(-10, -earthRadius - 180, 80);
     
-    // Two cities: Syene (no shadow - sun directly overhead) and Alexandria (has shadow)
+    // two cities: Syene (no shadow - sun directly overhead) and Alexandria (has shadow)
     const syeneX = 20;
     const alexandriaX = -30;
     const stickHeight = 35;
@@ -234,7 +227,7 @@ const BackgroundSketch: React.FC<Props> = ({ visualMode }) => {
     const earthCenterX = 20;
     const earthCenterY = 100;
     
-    // Sticks pointing up from cities
+    // sticks pointing up from cities
     p.stroke(200, 150, 100);
     p.strokeWeight(4);
     const syeneStickTopX = syeneX;
@@ -247,7 +240,7 @@ const BackgroundSketch: React.FC<Props> = ({ visualMode }) => {
     const alexandriaStickTopY = -stickHeight + 10;
     p.line(alexandriaStickBaseX, alexandriaStickBaseY, alexandriaStickTopX, alexandriaStickTopY); // Alexandria stick
     
-    p.fill(255, 255, 255, 50);  // Very light, slightly transparent — matches your reference perfectly
+    p.fill(255, 255, 255, 50); 
     p.noStroke();
     p.triangle(
       alexandriaStickTopX+30, alexandriaStickTopY+60,   
@@ -255,26 +248,26 @@ const BackgroundSketch: React.FC<Props> = ({ visualMode }) => {
       syeneStickTopX,     syeneStickTopY+60        
     );
 
-    // Extended lines from stick tops to Earth's center
+    // extended lines from stick tops to Earth's center
     p.stroke(200, 150, 100, 150);
     p.strokeWeight(2);
     p.line(syeneStickTopX, syeneStickTopY, earthCenterX, earthCenterY); // Syene to center
     p.line(alexandriaStickTopX, alexandriaStickTopY, earthCenterX, earthCenterY); // Alexandria to center
     
-    // Sun rays (parallel rays from sun)
+    // sun rays
     p.stroke(255, 200, 100, 150);
     p.strokeWeight(2);
     const sunX = 20;
     const sunY = -earthRadius - 160;
-    // Ray to Syene (vertical, no angle - sun directly overhead)
+    // ray to Syene (vertical, no angle - sun directly overhead)
     p.line(syeneStickTopX, syeneStickTopY, sunX, sunY);
-    // Ray to Alexandria (at an angle, parallel to Syene ray)
-    const angle = p.PI / 12; // ~7.2 degrees (approximately what Eratosthenes measured)
+    // ray to Alexandria (at an angle, parallel to Syene ray)
+    const angle = p.PI / 12; // ~7 degrees, what Eratosthenes measured
     const rayOffsetX = alexandriaStickTopX - syeneStickTopX;
     const rayOffsetY = alexandriaStickTopY - syeneStickTopY;
     p.line(alexandriaStickTopX, alexandriaStickTopY, sunX + rayOffsetX, sunY + rayOffsetY);
     
-    // Shadow in Alexandria
+    // shadow in Alexandria
     const shadowLength = stickHeight * p.tan(angle);
     p.fill(200, 200, 200, 180);
     p.noStroke();
@@ -284,19 +277,17 @@ const BackgroundSketch: React.FC<Props> = ({ visualMode }) => {
       alexandriaStickTopX, alexandriaStickTopY
     );
     
-    // Shadow at Syene (similar style, but no shadow since sun is overhead - draw minimal for consistency)
-    // Actually, since sun is overhead at Syene, there's no shadow, but we can draw a line to show the relationship
     p.stroke(200, 200, 200, 100);
     p.strokeWeight(1);
-    p.line(syeneX, 0, syeneX, 0); // No shadow, just a point
+    p.line(syeneX, 0, syeneX, 0); 
     
-    // Angle arc showing the difference (at Alexandria)
+    // angle arc showing the difference at Alexandria
     p.noFill();
     p.stroke(255, 200, 100, 200);
     p.strokeWeight(2);
     p.arc(alexandriaStickTopX, alexandriaStickTopY, 30, 30, -p.PI / 2, -p.PI / 2 + angle);
     
-    // Label the cities
+    // city label
     p.fill(255, 200);
     p.noStroke();
     p.textAlign(p.CENTER, p.CENTER);
@@ -308,12 +299,12 @@ const BackgroundSketch: React.FC<Props> = ({ visualMode }) => {
   };
 
   const drawHipparchus = (p: p5) => {
-    // Stars with varying brightness in clusters
+    // stars with varying brightness in clusters
     p.randomSeed(42);
     p.push();
     p.translate(-p.width * 0.6, -p.height * 0.5);
     
-    // Create clusters of stars with different brightness
+    // create clusters of stars with different brightness
     const clusters = [
       { x: p.width * 0.2, y: p.height * 0.3, count: 30 },
       { x: p.width * 0.5, y: p.height * 0.2, count: 25 },
@@ -329,7 +320,7 @@ const BackgroundSketch: React.FC<Props> = ({ visualMode }) => {
         const x = cluster.x + p.cos(angle) * dist;
         const y = cluster.y + p.sin(angle) * dist;
         
-        // Varying brightness (magnitude)
+        // varying brightness
         const brightness = p.random(100, 255);
         const size = p.map(brightness, 100, 255, 1, 3);
         
@@ -339,7 +330,7 @@ const BackgroundSketch: React.FC<Props> = ({ visualMode }) => {
       }
     });
     
-    // Add some connecting lines to show catalog structure
+    // connecting lines to show catalog structure
     p.stroke(255, 30);
     p.strokeWeight(0.5);
     clusters.forEach((cluster, i) => {
@@ -352,12 +343,11 @@ const BackgroundSketch: React.FC<Props> = ({ visualMode }) => {
   };
 
   const drawGalileo = (p: p5, time: number) => {
-    // Venus phases in orbital diagram around Sun, Jupiter with moons
     p.push();
     
-    // Draw orbital diagram of Venus phases
+    // orbital diagram of Venus phases
     p.push();
-    p.translate(100, -220); // Move up more
+    p.translate(100, -220);
     
     // Sun at center
     p.fill(255, 220, 50);
@@ -371,15 +361,14 @@ const BackgroundSketch: React.FC<Props> = ({ visualMode }) => {
     p.fill(200, 220, 255);
     p.circle(0, 150, 20);
     
-    // Elliptical orbit path
+    // elliptical orbit path
     p.noFill();
     p.stroke(150, 150, 150, 100);
     p.strokeWeight(1);
     p.ellipse(0, 0, 300, 200);
     
     // Venus phases arranged around orbit
-    // Size varies: smallest when full (farthest), largest when new (closest)
-    const baseSize = 25; // Bigger for visibility
+    const baseSize = 25; 
     const phases = [
       { angle: -p.PI / 2, name: 'Full', size: baseSize * 0.6, illuminated: 1.0 }, // Top
       { angle: -p.PI / 2 + 0.6, name: 'Gibbous', size: baseSize * 0.75, illuminated: 0.75 }, // Top-right
@@ -393,20 +382,20 @@ const BackgroundSketch: React.FC<Props> = ({ visualMode }) => {
     
     phases.forEach(phase => {
       p.push();
-      // Position on orbit
+      // position on orbit
       const orbitX = p.cos(phase.angle) * 150;
       const orbitY = p.sin(phase.angle) * 100;
       p.translate(orbitX, orbitY);
       
-      // Calculate angle to Sun (illumination always faces Sun)
+      // angle to Sun, illumination faces Sun
       const angleToSun = p.atan2(-orbitY, -orbitX);
       
-      // Draw Venus phase
+      // draw Venus phase
       const venusSize = phase.size;
       const radius = venusSize / 2;
       
       if (phase.illuminated === 0) {
-        // New - completely dark
+        // new - completely dark
         p.fill(30, 30, 40);
         p.noStroke();
         p.circle(0, 0, venusSize);
@@ -415,15 +404,15 @@ const BackgroundSketch: React.FC<Props> = ({ visualMode }) => {
         p.strokeWeight(1);
         p.circle(0, 0, venusSize);
       } else if (phase.illuminated === 1.0) {
-        // Full - completely illuminated
+        // full - completely illuminated
         p.fill(255, 200, 100);
         p.noStroke();
         p.circle(0, 0, venusSize);
       } else if (phase.illuminated === 0.5) {
-        // Quarter - half illuminated
+        // quarter - half illuminated
         p.fill(255, 200, 100);
         p.noStroke();
-        // Illuminated side faces Sun
+        // illuminated side faces Sun
         const startAngle = angleToSun - p.PI / 2;
         const endAngle = angleToSun + p.PI / 2;
         p.arc(0, 0, venusSize, venusSize, startAngle, endAngle);
@@ -432,10 +421,10 @@ const BackgroundSketch: React.FC<Props> = ({ visualMode }) => {
         p.strokeWeight(1);
         p.circle(0, 0, venusSize);
       } else if (phase.illuminated < 0.5) {
-        // Crescent - thin bright part facing Sun
+        // crescent - thin bright part facing Sun
         const illumination = phase.illuminated;
-        const offset = radius * (1 - illumination * 2);  // how much to shift
-        const darkAngle = angleToSun + p.PI;  // dark side is AWAY from Sun
+        const offset = radius * (1 - illumination * 2); 
+        const darkAngle = angleToSun + p.PI;  // dark side away from Sun
         const darkOffsetX = p.cos(darkAngle) * offset * 2.2;
         const darkOffsetY = p.sin(darkAngle) * offset * 2.2;
         const darkDiameter = venusSize * 1.8;  // large dark circle to carve out crescent
@@ -446,56 +435,54 @@ const BackgroundSketch: React.FC<Props> = ({ visualMode }) => {
         ctx.arc(0, 0, radius, 0, p.TWO_PI);
         ctx.clip();
       
-        // Draw full bright disk
+        // full bright disk
         p.fill(255, 200, 100);
         p.noStroke();
         p.circle(0, 0, venusSize);
       
-        // Carve out dark side with large shifted circle
+        // carve out dark side with large shifted circle
         p.fill(30, 30, 40);
         p.circle(darkOffsetX, darkOffsetY, darkDiameter);
       
         ctx.restore();
       
-        // Outline
         p.noFill();
         p.stroke(200, 220, 255, 150);
         p.strokeWeight(1);
         p.circle(0, 0, venusSize);
       } else {
-        // Gibbous - mostly illuminated, small dark portion
+        // gibbous - mostly illuminated, small dark portion
         const darkPortion = 1 - phase.illuminated;
-        const offset = radius * darkPortion * 1.8; // Increased for better visibility
+        const offset = radius * darkPortion * 1.8; 
         const darkOffsetX = p.cos(angleToSun + p.PI) * offset;
         const darkOffsetY = p.sin(angleToSun + p.PI) * offset;
         const darkRadius = radius - offset * 0.5;
         
-        // Set up clipping to Venus circle boundary
+        // clipping to Venus circle boundary
         const ctx = p.drawingContext as CanvasRenderingContext2D;
         ctx.save();
         ctx.beginPath();
         ctx.arc(0, 0, radius, 0, p.TWO_PI);
         ctx.clip();
         
-        // Draw full illuminated circle
+        // full illuminated circle
         p.fill(255, 200, 100);
         p.noStroke();
         p.circle(0, 0, venusSize);
         
-        // Draw dark portion (clipped to Venus boundary)
+        // dark portion, clipped to Venus boundary
         p.fill(30, 30, 40);
         p.circle(darkOffsetX, darkOffsetY, darkRadius * 2);
         
         ctx.restore();
         
-        // Outline
         p.noFill();
         p.stroke(200, 220, 255, 150);
         p.strokeWeight(1);
         p.circle(0, 0, venusSize);
       }
       
-      // Add label
+      // label
       p.fill(255, 255, 255, 200);
       p.noStroke();
       p.textAlign(p.CENTER, p.TOP);
@@ -507,21 +494,21 @@ const BackgroundSketch: React.FC<Props> = ({ visualMode }) => {
     
     p.pop();
     
-    // Jupiter with moons (moved lower)
+    // Jupiter with moons
     p.push();
-    p.translate(100, 150); // Move much lower
+    p.translate(100, 150);
     p.fill(200, 150, 100);
     p.noStroke();
-    p.circle(0, 0, 50); // Bigger Jupiter
+    p.circle(0, 0, 50); 
     
-    // Four Galilean moons orbiting
-    const moonDist = 80; // Bigger orbit
+    // four Galilean moons orbiting
+    const moonDist = 80; 
     for (let i = 0; i < 4; i++) {
       const angle = time * (0.5 + i * 0.2) + i * p.PI / 2;
       const moonX = p.cos(angle) * moonDist;
       const moonY = p.sin(angle) * moonDist;
       p.fill(255, 200);
-      p.circle(moonX, moonY, 8); // Bigger moons
+      p.circle(moonX, moonY, 8); 
       // Orbit path
       p.noFill();
       p.stroke(255, 20);
@@ -542,7 +529,7 @@ const BackgroundSketch: React.FC<Props> = ({ visualMode }) => {
     p.noStroke();
     p.circle(0, 0, 50);
     
-    // Elliptical orbit
+    // elliptical orbit
     const a = 180;  // semi-major axis
     const b = 120;  // semi-minor axis
     p.noFill();
@@ -550,28 +537,28 @@ const BackgroundSketch: React.FC<Props> = ({ visualMode }) => {
     p.strokeWeight(1);
     p.ellipse(0, 0, a * 2, b * 2);
 
-    // Planet position (Keplerian motion approximation)
+    // planet position (Keplerian motion approximation)
     const angularSpeed = 0.7;
     const angle = time * angularSpeed;
     const planetX = p.cos(angle) * a;
     const planetY = p.sin(angle) * b;
 
-    // Planet
+    // planet
     p.fill(100, 180, 255);
     p.noStroke();
     p.circle(planetX, planetY, 16);
 
-    // === Gravity Force Vector (1st & 2nd Law) ===
+    // gravity force vector (1st & 2nd Law)
     const forceScale = 0.18;
     const fx = -planetX * forceScale;
     const fy = -planetY * forceScale;
     
-    // Force line
+    // force line
     p.stroke(255, 100, 100);
     p.strokeWeight(3);
     p.line(planetX, planetY, planetX + fx, planetY + fy);
     
-    // Arrowhead
+    // arrowhead
     const fAngle = p.atan2(fy, fx);
     p.push();
     p.translate(planetX + fx, planetY + fy);
@@ -581,7 +568,7 @@ const BackgroundSketch: React.FC<Props> = ({ visualMode }) => {
     p.triangle(0, 0, -12, -5, -12, 5);
     p.pop();
 
-    // === Velocity / Inertia Vector (1st Law) ===
+    // velocity / inertia vector (1st Law) 
     const velLength = 50;
     const vx = -p.sin(angle) * velLength;
     const vy = p.cos(angle) * velLength;
@@ -599,27 +586,25 @@ const BackgroundSketch: React.FC<Props> = ({ visualMode }) => {
     p.triangle(0, 0, -12, -5, -12, 5);
     p.pop();
 
-    // === Equal-area sectors (2nd Law) ===
+    // force = mass x acceleration (2nd Law) 
     p.stroke(255, 100);
     p.strokeWeight(1);
     const sector = p.PI / 8;
     p.line(0, 0, planetX, planetY);
     p.line(0, 0, p.cos(angle + sector) * a, p.sin(angle + sector) * b);
 
-    // === Labels near the planet ===
+    // labels
     p.textAlign(p.CENTER);
     p.textSize(14);
     p.noStroke();
 
-    // Gravity label
     p.fill(255, 120, 120);
     p.text("Gravitational Force\n(F = GMm/r² → toward Sun)", planetX + fx / 2, planetY + fy / 2 - 20);
 
-    // Velocity label
     p.fill(120, 230, 255);
     p.text("Inertia / Velocity\n(1st Law: tends to go straight)", planetX + vx / 2 + 5, planetY + vy / 2 + 10);
 
-    // === Legend (top-left) ===
+    // legend 
     p.push();
     p.translate(-200, 200);
     p.textAlign(p.LEFT);
@@ -644,7 +629,7 @@ const BackgroundSketch: React.FC<Props> = ({ visualMode }) => {
     p.fill(200);
     p.text("2nd Law – F = ma: Gravity accelerates planet toward Sun", 40, 65);
 
-    // 3rd Law (we show it subtly with reaction arrow on Sun if we want, but usually omitted in simple diagrams)
+    // 3rd Law 
     p.fill(200);
     p.noStroke();
     p.text("3rd Law – Action–Reaction: Every action there is an equal but opposite reaction", 40, 95);
