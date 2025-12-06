@@ -2,6 +2,7 @@ import { BrowserRouter as Router, useLocation, Link } from 'react-router-dom';
 import BackgroundSketch from './components/BackgroundSketch';
 import { eras, type EraId } from './data/content';
 import { AnimatePresence, motion } from 'framer-motion';
+import InfoTooltip from './components/InfoTooltip';
 
 const ContentWrapper = () => {
   const location = useLocation();
@@ -35,6 +36,7 @@ const ContentWrapper = () => {
             {/* Title */}
             <h1 className="text-4xl md:text-5xl font-serif mb-6 text-white drop-shadow-lg">
               {activeEra.title.split('—')[0]}
+              {activeEra.explanation && <InfoTooltip content={activeEra.explanation} />}
             </h1>
             
             {/* Poem */}
