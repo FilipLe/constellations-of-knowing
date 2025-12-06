@@ -77,9 +77,6 @@ const BackgroundSketch: React.FC<Props> = ({ visualMode }) => {
           case 'newton-laws':
             drawNewton(p, t);
             break;
-          case 'epilogue-constellation':
-            drawEpilogue(p, t);
-            break;
           default:
             drawStars(p);
         }
@@ -537,125 +534,121 @@ const BackgroundSketch: React.FC<Props> = ({ visualMode }) => {
   };
 
   const drawNewton = (p: p5, time: number) => {
-    // Show forces acting on elliptical orbits - three laws represented
-    p.fill(255, 200, 50); p.noStroke(); p.circle(0, 0, 50); // Sun
+    p.background(10, 10, 30);
+    p.translate(100, -100);
+
+    // Sun
+    p.fill(255, 200, 50);
+    p.noStroke();
+    p.circle(0, 0, 50);
     
-    // Elliptical orbit with planet
-    const a = 150;
-    const b = 100;
-    p.noFill(); p.stroke(255, 40);
+    // Elliptical orbit
+    const a = 180;  // semi-major axis
+    const b = 120;  // semi-minor axis
+    p.noFill();
+    p.stroke(255, 60);
+    p.strokeWeight(1);
     p.ellipse(0, 0, a * 2, b * 2);
-    
-    const speed = time * 0.8;
-    const angle = speed;
+
+    // Planet position (Keplerian motion approximation)
+    const angularSpeed = 0.7;
+    const angle = time * angularSpeed;
     const planetX = p.cos(angle) * a;
     const planetY = p.sin(angle) * b;
-    
-    // Planet
-    p.fill(255); p.noStroke();
-    p.circle(planetX, planetY, 12);
-    
-    // Force vector (gravity pulling toward sun)
-    const forceScale = 30;
-    const forceX = -planetX * 0.15;
-    const forceY = -planetY * 0.15;
-    p.stroke(255, 200, 50, 200);
-    p.strokeWeight(2);
-    p.line(planetX, planetY, planetX + forceX, planetY + forceY);
-    // Arrowhead
-    const arrowAngle = p.atan2(forceY, forceX);
-    p.push();
-    p.translate(planetX + forceX, planetY + forceY);
-    p.rotate(arrowAngle);
-    p.triangle(0, 0, -8, -4, -8, 4);
-    p.pop();
-    
-    // Velocity vector (tangent to orbit - inertia)
-    const velX = -p.sin(angle) * forceScale;
-    const velY = p.cos(angle) * forceScale;
-    p.stroke(100, 200, 255, 200);
-    p.strokeWeight(2);
-    p.line(planetX, planetY, planetX + velX, planetY + velY);
-    // Arrowhead
-    const velAngle = p.atan2(velY, velX);
-    p.push();
-    p.translate(planetX + velX, planetY + velY);
-    p.rotate(velAngle);
-    p.triangle(0, 0, -8, -4, -8, 4);
-    p.pop();
-    
-    // Show equal areas (second law) - draw sectors
-    p.noFill();
-    p.stroke(255, 30);
-    p.strokeWeight(1);
-    const sectorAngle = p.PI / 6;
-    p.line(0, 0, planetX, planetY);
-    p.line(0, 0, p.cos(angle + sectorAngle) * a, p.sin(angle + sectorAngle) * b);
-  };
 
-  const drawEpilogue = (p: p5, time: number) => {
-    // Names connected in chain with mini versions of their modules
+    // Planet
+    p.fill(100, 180, 255);
+    p.noStroke();
+    p.circle(planetX, planetY, 16);
+
+    // === Gravity Force Vector (1st & 2nd Law) ===
+    const forceScale = 0.18;
+    const fx = -planetX * forceScale;
+    const fy = -planetY * forceScale;
+    
+    // Force line
+    p.stroke(255, 100, 100);
+    p.strokeWeight(3);
+    p.line(planetX, planetY, planetX + fx, planetY + fy);
+    
+    // Arrowhead
+    const fAngle = p.atan2(fy, fx);
     p.push();
-    p.translate(-p.width * 0.4, 0);
+    p.translate(planetX + fx, planetY + fy);
+    p.rotate(fAngle);
+    p.fill(255, 100, 100);
+    p.noStroke();
+    p.triangle(0, 0, -12, -5, -12, 5);
+    p.pop();
+
+    // === Velocity / Inertia Vector (1st Law) ===
+    const velLength = 50;
+    const vx = -p.sin(angle) * velLength;
+    const vy = p.cos(angle) * velLength;
     
-    const philosophers = [
-      { name: 'Pythagoras', x: -200, y: -80, mode: 'single-sphere' },
-      { name: 'Plato', x: -100, y: -40, mode: 'concentric' },
-      { name: 'Aristotle', x: 0, y: 0, mode: 'aristotle-physics' },
-      { name: 'Ptolemy', x: 100, y: 40, mode: 'epicycles' },
-      { name: 'Copernicus', x: 200, y: 80, mode: 'heliocentric' },
-      { name: 'Kepler', x: 300, y: 120, mode: 'ellipses' },
-      { name: 'Newton', x: 400, y: 160, mode: 'newton-laws' }
-    ];
+    p.stroke(100, 220, 255);
+    p.strokeWeight(3);
+    p.line(planetX, planetY, planetX + vx, planetY + vy);
     
-    // Draw connecting chain
+    const vAngle = p.atan2(vy, vx);
+    p.push();
+    p.translate(planetX + vx, planetY + vy);
+    p.rotate(vAngle);
+    p.fill(100, 220, 255);
+    p.noStroke();
+    p.triangle(0, 0, -12, -5, -12, 5);
+    p.pop();
+
+    // === Equal-area sectors (2nd Law) ===
     p.stroke(255, 100);
-    p.strokeWeight(2);
-    for (let i = 0; i < philosophers.length - 1; i++) {
-      p.line(philosophers[i].x, philosophers[i].y, philosophers[i + 1].x, philosophers[i + 1].y);
-    }
-    
-    // Draw each philosopher's mini visualization
-    philosophers.forEach((phil) => {
-      p.push();
-      p.translate(phil.x, phil.y);
-      
-      // Mini visualization based on mode
-      p.scale(0.3);
-      switch (phil.mode) {
-        case 'single-sphere':
-          drawGeoCentric(p, 1, time);
-          break;
-        case 'concentric':
-          drawGeoCentric(p, 3, time);
-          break;
-        case 'aristotle-physics':
-          drawAristotle(p, time);
-          break;
-        case 'epicycles':
-          drawPtolemy(p, time);
-          break;
-        case 'heliocentric':
-          drawSolarSystem(p, time, false);
-          break;
-        case 'ellipses':
-          drawSolarSystem(p, time, true);
-          break;
-        case 'newton-laws':
-          drawNewton(p, time);
-          break;
-      }
-      
-      p.pop();
-      
-      // Name label
-      p.fill(255, 200);
-      p.noStroke();
-      p.textAlign(p.CENTER, p.CENTER);
-      p.textSize(12);
-      p.text(phil.name, phil.x, phil.y + 50);
-    });
-    
+    p.strokeWeight(1);
+    const sector = p.PI / 8;
+    p.line(0, 0, planetX, planetY);
+    p.line(0, 0, p.cos(angle + sector) * a, p.sin(angle + sector) * b);
+
+    // === Labels near the planet ===
+    p.textAlign(p.CENTER);
+    p.textSize(14);
+    p.noStroke();
+
+    // Gravity label
+    p.fill(255, 120, 120);
+    p.text("Gravitational Force\n(F = GMm/r² → toward Sun)", planetX + fx / 2, planetY + fy / 2 - 20);
+
+    // Velocity label
+    p.fill(120, 230, 255);
+    p.text("Inertia / Velocity\n(1st Law: tends to go straight)", planetX + vx / 2 + 5, planetY + vy / 2 + 10);
+
+    // === Legend (top-left) ===
+    p.push();
+    p.translate(-200, 200);
+    p.textAlign(p.LEFT);
+    p.textSize(15);
+    p.fill(255);
+    p.text("Newton's Laws of Motion & Universal Gravitation", 0, 0);
+
+    p.textSize(13);
+    p.strokeWeight(3);
+
+    // 1st Law
+    p.stroke(100, 220, 255);
+    p.line(0, 30, 30, 30);
+    p.noStroke();
+    p.fill(200);
+    p.text("1st Law – Inertia: Object moves in straight line unless acted upon", 40, 35);
+
+    // 2nd Law
+    p.stroke(255, 100, 100);
+    p.line(0, 60, 30, 60);
+    p.noStroke();
+    p.fill(200);
+    p.text("2nd Law – F = ma: Gravity accelerates planet toward Sun", 40, 65);
+
+    // 3rd Law (we show it subtly with reaction arrow on Sun if we want, but usually omitted in simple diagrams)
+    p.fill(200);
+    p.noStroke();
+    p.text("3rd Law – Action–Reaction: Every action there is an equal but opposite reaction", 40, 95);
+
     p.pop();
   };
 

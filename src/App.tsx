@@ -34,7 +34,7 @@ const ContentWrapper = () => {
               {activeEra.title.split('—')[0]} {/* Clean Title */}
             </h1>
             
-            <div className="space-y-4 text-lg md:text-xl font-serif text-gray-200 leading-relaxed drop-shadow-md">
+            <div className="space-y-4 text-lg md:text-xl font-serif text-gray-200 leading-relaxed drop-shadow-md w-screen max-w-none">
               {activeEra.poem.map((line, i) => (
                 <p key={i}>{line}</p>
               ))}
