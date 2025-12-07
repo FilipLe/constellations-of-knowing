@@ -1,5 +1,9 @@
 # Constellations of Knowing
 ### *An Interactive Poetic Journey Through the History of Astronomy*
+---
+
+## ⭐ Deployed
+Feel free to check out the finished website: <a href="https://filiple.github.io/constellations-of-knowing/">https://filiple.github.io/constellations-of-knowing/</a>
 
 ---
 
